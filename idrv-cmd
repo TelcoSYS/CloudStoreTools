@@ -1,0 +1,49 @@
+#!/bin/sh
+
+idrvCmd="idevsutil"
+idrvUser="ccugli"
+idrvPswd="--password-file=/home/cgc/bin/idrive.pw"
+
+idrvURL="${idrvUser}@evs57.idrive.com::home/"
+idrvURLB="${idrvUser}@evs57.idrive.com::home/Inbox/usa1/"
+
+
+### $idrvCmd --getServerAddress $idrvUser $idrvPswd
+# cmdUtilityServer="evs57.idrive.com"
+# cmdUtilityServerIP="173.255.7.241"
+# webApiServer="evsweb57.idrive.com"
+# webApiServerIP="173.255.7.242"/>
+
+### $idrvCmd --validate --user=$idrvUser $idrvPswd
+
+### $idrvCmd --xml-output $idrvPswd --auth-list ${idrvURL}Photos/
+
+
+srcDir=$2
+tmpFile="/tmp/idrv-cmd_$(date +%Y%m%d_%H%M%S)_$$_$RANDOM.lst"
+nameDir=$(dirname $srcDir)
+baseDir=$(basename $srcDir)
+
+if [[ -d $srcDir ]]; then
+
+  (cd $nameDir; find $baseDir -type f -readable > $tmpFile)
+
+  $idrvCmd  $idrvPswd --files-from=$tmpFile $nameDir  ${idrvURLB}
+
+  rm $tmpFile
+
+elif [[ -f $srcDir && -r $srcDir ]]; then
+
+  basename $srcDir > $tmpFile
+
+  $idrvCmd  $idrvPswd --files-from=$tmpFile $nameDir  ${idrvURLB}
+
+  rm $tmpFile
+
+else
+  echo "Invalid dir/file name..."
+  exit
+fi
+
+##### EoScript
+
