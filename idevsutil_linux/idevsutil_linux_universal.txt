@@ -1,0 +1,18 @@
+http://evs.idrive.com/download.htm - Ago2012
+
+Command Line Utility - Universal build for Linux
+This build can run on 32-bit and 64-bit Linux distros. Follow the below steps to use the build on 64-bit Linux:
+
+
+ => Command for 64-bit Debian and Ubuntu derived OS: 
+
+      $ sudo apt-get install ia32-libs 
+
+
+ => Command for 64-bit RPM derived OS (CentOS, Fedora, Red Hat etc.,):
+
+      # yum install glibc.i686 
+      # yum install popt.i686 
+
+
+If glibc.i686 and popt.i686 are not available, then install glibc.i386 and popt.i386 package. 
