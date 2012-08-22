@@ -11,13 +11,13 @@ Features
 
 * Dropbox
 * Amazon S3
+* Amazon Glacier
 * iDrive.com
 * WebDAV
-* scp
-* ftp
 * Google Drive 
 * SkyDrive (WebDAV)
-
+* scp
+* ftp
 
 
 
