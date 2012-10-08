@@ -1,11 +1,14 @@
 
 
 ##
-## Cuggit
 ## Oct2012
 
-$idrvUser = "ccugli"
-$hostname = "hpteco"
+## TODO
+#    Upload Directory (with regex .../*.txt)
+#    Download support
+
+$idrvUser = "userNameHere" ## TODO: read from file
+$hostname = "machineName" ## TODO: Default Destination (/Inbox/machineName)
 
 ################################
 $idrvBin = "idevsutil.exe"
@@ -14,7 +17,7 @@ $idrvPwdFile = "${Home}/.idrive.pw"
 $idrvOpt = "--verbose --type"
 $idrvTmp = "--temp=" + [System.IO.Path]::GetTempPath()
 
-$cmdUtilityServer = "evs57.idrive.com"
+$cmdUtilityServer = "evs57.idrive.com" ## TODO: get at runtime
  
 $idrvURLbase = "${idrvUser}@${cmdUtilityServer}::home"
 
@@ -26,7 +29,7 @@ $Env:Path = $Env:Path + ";D:\Repo\CloudStoreTools\idevsutil_win"
 $idrvPswd = ""
 
 if (Test-Path -PathType Leaf $idrvPwdFile) {
-   #### Windows is not secure to save password##
+   #### Windows is not secure to save password ##
    $idrvPswd = "--password-file=$idrvPwdFile"
 }
 
@@ -71,10 +74,10 @@ function idrv-upload-file ([string]$from, [string]$to)
   Remove-Item $tmpfile ###-Force
 }
 
-idrv-upload-file "D:\Repo\CloudStoreTools\idevsutil_win\Readme.txt" "/TECO/nueSh3a"
+idrv-upload-file "D:\Repo\CloudStoreTools\idevsutil_win\Readme.txt" "/Devel"
 
 
-Write-Host "Done " + $?
+Write-Host "Debug: Done: " + $?
 
 
 
