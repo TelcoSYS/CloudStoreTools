@@ -113,7 +113,10 @@ baseDir=$(basename $srcDir)
 
 if [[ -d $srcDir ]]; then
 
-  (cd $nameDir; find $baseDir -type f -readable > $tmpFile)
+  ## -readable option is not available in CentOS find 
+  ##(cd $nameDir; find $baseDir -type f -readable > $tmpFile)
+  ##TODO: filter hiden files
+  (cd $nameDir; find $baseDir -type f > $tmpFile)
 
   $idrvCmd  $idrvPswd --files-from=$tmpFile $nameDir  ${idrvURLB}
 
