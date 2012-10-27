@@ -1,23 +1,110 @@
-#!/bin/sh
+#!/bin/bash
+
+# CloudStoreTools
+# Gabriel Cugliari
+# Oct2012
+
+################################################################ 
 
 idrvCmd="idevsutil"
-idrvUser="ccugli"
-idrvPswd="--password-file=/home/cgc/bin/idrive.pw"
+idrvUsrFile="${HOME}/.idrive.usr"
+idrvPwdFile="${HOME}/.idrive.pwd"
+idrvDirFile="${HOME}/.idrive.dir"
 
-idrvURL="${idrvUser}@evs57.idrive.com::home/"
-idrvURLB="${idrvUser}@evs57.idrive.com::home/Inbox/usa1/"
+################################################################ 
+
+print_usage()
+{
+  echo "usage:" 
+  echo  "   $0 upload <src-local-dir>"
+  echo  "   $0 upload <src-local-file>"
+}
 
 
-### $idrvCmd --getServerAddress $idrvUser $idrvPswd
-# cmdUtilityServer="evs57.idrive.com"
-# cmdUtilityServerIP="173.255.7.241"
-# webApiServer="evsweb57.idrive.com"
-# webApiServerIP="173.255.7.242"/>
+if [ $# -ne 2 ]; then
+  print_usage
+  exit 1
+fi
 
-### $idrvCmd --validate --user=$idrvUser $idrvPswd
+cmdOper=$(echo "$1" | tr "[:upper:]" "[:lower:]")
+if [ "$cmdOper" != "upload" ]; then
+  print_usage
+  exit 1
+fi
 
-### $idrvCmd --xml-output $idrvPswd --auth-list ${idrvURL}Photos/
+################################################################ 
+appName=$($idrvCmd --help 2> /dev/null | head -n1 | cut -d" " -f1)
 
+if [ "$appName" != "idevsutil" ]; then
+  echo "${idrvCmd}: not a valid application"  >&2
+  exit 2
+fi
+
+################################################################ 
+
+idrvUser=$(head -n1 "$idrvUsrFile" 2>/dev/null | tr -d " 	")
+
+if [ "X$idrvUser" = "X" ]; then
+  echo "Username not found at $idrvUsrFile" >&2
+  exit 3
+fi
+
+echo "Username   : $idrvUser"
+
+################################################################ 
+
+idrvchar=$(head -n1 "$idrvPwdFile" 2>/dev/null | tr -d " 	" | wc -c)
+
+if [ $idrvchar -lt 4 ]; then
+  echo "Password not found at $idrvPwdFile" >&2
+  exit 4
+fi
+
+if [ $(ls -l "$idrvPwdFile" |cut -c1-10) != "-r--------" ]; then
+  chmod 400 "$idrvPwdFile" 2> /dev/null
+fi 
+
+################################################################ 
+
+getXAttrib()
+{
+   echo "$idrvResponse" | grep "$1" | sed -n "s#^\(.\+[ \\t\\r]\)\?$1=\"\([^\"]\+\)\".*\$#\2#p"
+}
+
+################################################################ 
+idrvPswd="--password-file=$idrvPwdFile"
+
+idrvResponse=$($idrvCmd --getServerAddress $idrvUser $idrvPswd 2>/dev/null)
+
+if [ $(getXAttrib message) = "ERROR" ]; then
+   echo "Error      : $(getXAttrib desc)"
+   exit 12 
+fi
+
+cmdUtilityServer=$(getXAttrib cmdUtilityServer)
+if [ "X$cmdUtilityServer" = "X" ]; then
+  echo "Cannot retrieve server address"
+  exit 4
+fi
+
+echo "Server     : $cmdUtilityServer"
+
+################################################################ 
+
+idrvUploadDir=$(head -n1 "$idrvDirFile" 2>/dev/null | tr -d " 	")
+# Dont use path with spaces
+
+if [ "X$idrvUploadDir" = "X" ]; then
+  echo "Upload Dir not found at $idrvDirFile" >&2
+  idrvUploadDir="/UploadCST/$(hostname -s)/"
+fi
+
+echo "UploadDir  : $idrvUploadDir"
+
+################################################################ 
+
+idrvURL="${idrvUser}@${cmdUtilityServer}::home/" 
+idrvURLB="${idrvUser}@${cmdUtilityServer}::home${idrvUploadDir}" 
 
 srcDir=$2
 tmpFile="/tmp/idrv-cmd_$(date +%Y%m%d_%H%M%S)_$$_$RANDOM.lst"
